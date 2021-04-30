@@ -15,7 +15,8 @@ Sub StockTicker()
   OpenPrice = Range("C2").Value  'Set initial price
   Dim ClosePrice As Double
   Dim PriceChange As Double
-    
+  Dim PercentChange As Double
+      
 ' Declare a variable for last row
   Dim LastRow As Long
   LastRow = Cells(Rows.Count, 1).End(xlUp).Row   'In lieu of hardcoding ending number, this finds and stores the value of the last row in variable LastRow for use in For Loop
@@ -45,6 +46,17 @@ Sub StockTicker()
           
 ' Output price change to summary table
         Range("J" & Summary_Table_Row).Value = PriceChange
+    
+' Calculates percent change from opening price to close price
+        If OpenPrice = 0 Then  ' Need to evaluate situation where the denominator = 0 from OpenPrice, if so, force PercentChange = 0
+            PercentChange = 0
+        Else
+            PercentChange = (PriceChange / OpenPrice)
+        End If
+        
+' Output percent change to summary table
+        Range("K" & Summary_Table_Row).Value = PercentChange
+        Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
                 
 ' Add one row to the summary table
         Summary_Table_Row = Summary_Table_Row + 1
@@ -59,16 +71,26 @@ Sub StockTicker()
   
 ' Add to TotalVolume when the cell immediately following a row has the same ticker
         TotalVolume = TotalVolume + Cells(i, 7).Value
-        
-        
-        
-        
-  
-  
+             
     End If
 
   Next i
 
-
+' Use row count to get to last row then xlup to the last nonblank row in the summary table
+  Dim LastSumTblRow As Long
+  LastSumTblRow = Range("L" & Rows.Count).End(xlUp).Row
+  
+  'Conditional formatting for positive and negative changes
+  
+  For i = 2 To LastSumTblRow
+    If Cells(i, 10).Value > 0 Then
+       Cells(i, 10).Interior.ColorIndex = 43
+    Else
+       Cells(i, 10).Interior.ColorIndex = 3
+    End If
+  Next i
+   
+' Return cell to A1
+  Cells(1, 1).Select
 
 End Sub
